@@ -1,16 +1,23 @@
 class SessionsController < ApplicationController
     include CurrentUserConcern
+    
+    def issue_token(payload)
+        JWT.encode(payload, Rails.application.secrets.secret_key_base, "HS256")
+    end
+
     def create
         user = User
                 .find_by(email: params["user"]["email"])
                 .try(:authenticate, params["user"]["password"])
 
         if user 
-            session[:user_id] = user.id
+            # session[:user_id] = user.id
+            user_jwt = issue_token({id: user.id})
+            cookies.signed[:jwt] = {value: created_jwt, httponly: true}
             render json: {
                 status: :created,
                 logged_in: true,
-                user: user
+                username: user.username
             }
         else
             render json: { status: 401 }

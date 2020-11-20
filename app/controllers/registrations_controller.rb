@@ -1,12 +1,18 @@
 class RegistrationsController < ApplicationController
+    def issue_token(payload)
+        JWT.encode(payload, Rails.application.secrets.secret_key_base, "HS256")
+    end
+
     def create 
         user = User.create!(user_params)
 
         if user 
-            session[:user_id] = user.id 
+            user_jwt = issue_token({id: user.id})
+            cookies.signed[:jwt] = {value: user_jwt, httponly: true}
             render json: {
                 status: :created,
-                user: user
+                logged_in: true,
+                username: user.username
             }
         else
             render json: { status: 500 }

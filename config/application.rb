@@ -34,13 +34,16 @@ module HowdyBackend
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
 
+    Rails.application.config.middleware.use ActionDispatch::Cookies
+
     Rails.application.config.middleware.insert_before 0, Rack::Cors do
       allow do
-        origins '*'
-    
+        origins 'http://localhost:3001'
+        
         resource '*',
           headers: :any,
-          methods: [:get, :post, :put, :patch, :delete, :options, :head]
+          methods: [:get, :post, :put, :patch, :delete, :options, :head],
+          credentials: true
       end
     end
   end
