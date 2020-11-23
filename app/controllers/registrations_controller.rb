@@ -9,6 +9,7 @@ class RegistrationsController < ApplicationController
         if user 
             user_jwt = issue_token({id: user.id})
             cookies.signed[:jwt] = {value: user_jwt, httponly: true}
+            puts cookies[:jwt]
             render json: {
                 status: :created,
                 logged_in: true,

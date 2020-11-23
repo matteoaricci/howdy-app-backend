@@ -7,13 +7,13 @@ class SessionsController < ApplicationController
 
     def create
         user = User
-                .find_by(email: params["user"]["email"])
+                .find_by(username: params["user"]["username"])
                 .try(:authenticate, params["user"]["password"])
 
         if user 
             # session[:user_id] = user.id
             user_jwt = issue_token({id: user.id})
-            cookies.signed[:jwt] = {value: created_jwt, httponly: true}
+            cookies.signed[:jwt] = {value: user_jwt, httponly: true}
             render json: {
                 status: :created,
                 logged_in: true,
@@ -36,7 +36,7 @@ class SessionsController < ApplicationController
     end
 
     def logout
-        reset_session
-        render json: { status: 200, logged_out: true }
+        cookies.delete :jwt 
+        render json: {logged_in: false}
     end
 end
